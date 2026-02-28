@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="2" author="jovichen">
+
+        <!-- Parent Table -->
+        <sql>
+            CREATE TABLE room (
+                room_id SERIAL PRIMARY KEY,
+                room_number VARCHAR(10) NOT NULL UNIQUE,
+                price NUMERIC(10,2) NOT NULL,
+                capacity INT NOT NULL,
+                status VARCHAR(20) NOT NULL
+            );
+        </sql>
+
+        <!-- Child Table 1 -->
+        <sql>
+            CREATE TABLE standard_room (
+                bed_type VARCHAR(50),
+                has_tv BOOLEAN
+            ) INHERITS (room);
+        </sql>
+
+        <!-- Child Table 2 -->
+        <sql>
+            CREATE TABLE suite_room (
+                living_room BOOLEAN,
+                jacuzzi BOOLEAN,
+                minibar BOOLEAN
+            ) INHERITS (room);
+        </sql>
+
+        <!-- Add FK from booking to room -->
+        <addForeignKeyConstraint
+            baseTableName="booking"
+            baseColumnNames="room_id"
+            referencedTableName="room"
+            referencedColumnNames="room_id"
+            constraintName="fk_booking_room"/>
+
+    </changeSet>
+
+</databaseChangeLog>
