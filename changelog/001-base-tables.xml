@@ -9,7 +9,7 @@
 
     <changeSet id="1" author="jovichen">
 
-        <!-- CUSTOMER -->
+ 
         <createTable tableName="customer">
             <column name="customer_id" type="SERIAL">
                 <constraints primaryKey="true"/>
@@ -22,7 +22,7 @@
             </column>
         </createTable>
 
-        <!-- BOOKING -->
+
         <createTable tableName="booking">
             <column name="booking_id" type="SERIAL">
                 <constraints primaryKey="true"/>
@@ -33,7 +33,7 @@
             <column name="check_out" type="DATE"/>
         </createTable>
 
-        <!-- SERVICE -->
+
         <createTable tableName="service">
             <column name="service_id" type="SERIAL">
                 <constraints primaryKey="true"/>
@@ -42,14 +42,14 @@
             <column name="price" type="NUMERIC(10,2)"/>
         </createTable>
 
-        <!-- BOOKED SERVICE -->
+
         <createTable tableName="booked_service">
             <column name="booking_id" type="INT"/>
             <column name="service_id" type="INT"/>
             <column name="quantity" type="INT"/>
         </createTable>
 
-        <!-- FOREIGN KEYS -->
+
         <addForeignKeyConstraint
             baseTableName="booking"
             baseColumnNames="customer_id"

@@ -9,7 +9,7 @@
 
     <changeSet id="2" author="jovichen">
 
-        <!-- Parent Table -->
+
         <sql>
             CREATE TABLE room (
                 room_id SERIAL PRIMARY KEY,
@@ -20,7 +20,7 @@
             );
         </sql>
 
-        <!-- Child Table 1 -->
+
         <sql>
             CREATE TABLE standard_room (
                 bed_type VARCHAR(50),
@@ -28,7 +28,7 @@
             ) INHERITS (room);
         </sql>
 
-        <!-- Child Table 2 -->
+
         <sql>
             CREATE TABLE suite_room (
                 living_room BOOLEAN,
@@ -37,7 +37,7 @@
             ) INHERITS (room);
         </sql>
 
-        <!-- Add FK from booking to room -->
+
         <addForeignKeyConstraint
             baseTableName="booking"
             baseColumnNames="room_id"
