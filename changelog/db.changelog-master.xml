@@ -12,5 +12,8 @@
 
     <include file="002-room-inheritance.xml"
              relativeToChangelogFile="true"/>
+	
+	<include file="005-test-data-generation.xml" 
+			relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
