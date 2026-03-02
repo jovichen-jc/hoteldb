@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- ========================================================= -->
+    <!-- INSERT BASE SERVICES                                      -->
+    <!-- ========================================================= -->
+    <changeSet id="test-data-services-v3" author="monica">
+        <sql><![CDATA[
+INSERT INTO service (service_name, price) VALUES
+('Breakfast', 15.00),
+('Lunch', 25.00),
+('Dinner', 30.00),
+('Spa', 80.00),
+('Laundry', 12.00),
+('Transportation', 40.00),
+('Minibar', 20.00),
+('Gym Access', 10.00),
+('Pool Access', 0.00),
+('Room Service', 18.00);
+        ]]></sql>
+    </changeSet>
+
+    <!-- ========================================================= -->
+    <!-- INSERT ROOMS (STANDARD + SUITE)                           -->
+    <!-- ========================================================= -->
+<changeSet id="test-data-rooms-v6" author="monica">
+    <sql splitStatements="false" stripComments="false"><![CDATA[
+DO $block$
+DECLARE
+    i INT;
+    base_price NUMERIC;
+    cap INT;
+    status TEXT;
+BEGIN
+    -- Standard rooms (70%)
+    FOR i IN 1..210 LOOP
+        base_price := (50 + (random() * 50))::numeric(10,2);
+        cap := (1 + floor(random() * 3))::int;
+        status := 'available';
+
+        -- Insert into parent table
+        INSERT INTO room (room_number, price, capacity, status)
+        VALUES (
+            'STD-' || i,
+            base_price,
+            cap,
+            status
+        );
+
+        -- Insert into child table (all required columns)
+        INSERT INTO standard_room (
+            room_id,
+            room_number,
+            price,
+            capacity,
+            status,
+            bed_type,
+            has_tv
+        )
+        VALUES (
+            currval('room_room_id_seq'),
+            'STD-' || i,
+            base_price,
+            cap,
+            status,
+            CASE WHEN random() > 0.5 THEN 'Queen' ELSE 'Double' END,
+            (random() > 0.2)
+        );
+    END LOOP;
+
+    -- Suite rooms (30%)
+    FOR i IN 211..300 LOOP
+        base_price := (120 + (random() * 100))::numeric(10,2);
+        cap := (2 + floor(random() * 3))::int;
+        status := 'available';
+
+        -- Insert into parent table
+        INSERT INTO room (room_number, price, capacity, status)
+        VALUES (
+            'STE-' || i,
+            base_price,
+            cap,
+            status
+        );
+
+        -- Insert into child table (all required columns)
+        INSERT INTO suite_room (
+            room_id,
+            room_number,
+            price,
+            capacity,
+            status,
+            living_room,
+            jacuzzi,
+            minibar
+        )
+        VALUES (
+            currval('room_room_id_seq'),
+            'STE-' || i,
+            base_price,
+            cap,
+            status,
+            (random() > 0.3),
+            (random() > 0.7),
+            (random() > 0.1)
+        );
+    END LOOP;
+END;
+$block$;
+    ]]></sql>
+</changeSet>
+
+    <!-- ========================================================= -->
+    <!-- INSERT CUSTOMERS (10,000)                                 -->
+    <!-- ========================================================= -->
+    <changeSet id="test-data-customers-v3" author="monica">
+        <sql><![CDATA[
+INSERT INTO customer (name, email)
+SELECT
+    'Customer ' || i,
+    'customer' || i || '@example.com'
+FROM generate_series(1, 10000) AS s(i);
+        ]]></sql>
+    </changeSet>
+
+    <!-- ========================================================= -->
+    <!-- INSERT BOOKINGS (20,000)                                  -->
+    <!-- ========================================================= -->
+<changeSet id="test-data-bookings-v4" author="monica">
+    <sql splitStatements="false" stripComments="false"><![CDATA[
+DO $block$
+DECLARE
+    i INT;
+    start_date DATE;
+    end_date DATE;
+    random_room INT;
+    random_customer INT;
+BEGIN
+    FOR i IN 1..20000 LOOP
+        start_date := DATE '2022-01-01' + (random() * 750)::int;
+        end_date := start_date + (1 + floor(random() * 14))::int;
+
+        SELECT room_id INTO random_room
+        FROM room
+        ORDER BY random()
+        LIMIT 1;
+
+        SELECT customer_id INTO random_customer
+        FROM customer
+        ORDER BY random()
+        LIMIT 1;
+
+        INSERT INTO booking (customer_id, room_id, check_in, check_out)
+        VALUES (
+            random_customer,
+            random_room,
+            start_date,
+            end_date
+        );
+    END LOOP;
+END;
+$block$;
+    ]]></sql>
+</changeSet>
+
+    <!-- ========================================================= -->
+    <!-- INSERT BOOKED SERVICES (0–5 per booking)                  -->
+    <!-- ========================================================= -->
+<changeSet id="test-data-booked-services-v4" author="monica">
+    <sql splitStatements="false" stripComments="false"><![CDATA[
+DO $block$
+DECLARE
+    i INT;
+    random_booking INT;
+    random_service INT;
+BEGIN
+    FOR i IN 1..30000 LOOP
+
+        SELECT booking_id INTO random_booking
+        FROM booking
+        ORDER BY random()
+        LIMIT 1;
+
+        SELECT service_id INTO random_service
+        FROM service
+        ORDER BY random()
+        LIMIT 1;
+
+        INSERT INTO booked_service (booking_id, service_id)
+        VALUES (random_booking, random_service);
+
+    END LOOP;
+END;
+$block$;
+    ]]></sql>
+</changeSet>
+
+</databaseChangeLog>
