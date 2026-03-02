@@ -1,12 +1,12 @@
-HotelDB Cloud Project
+# HotelDB Cloud Project
 
-Setup Instructions
+## Setup Instructions
 1. Install Liquibase
 2. Create liquibase.properties (use example file)
 3. Run:
    liquibase update
 
-Features
+## Features
 - PostgreSQL table inheritance (room → standard_room, suite_room)
 - Liquibase schema versioning
 - Neon cloud deployment
